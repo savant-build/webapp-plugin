@@ -22,6 +22,7 @@ import org.savantbuild.plugin.file.FilePlugin
 import org.savantbuild.plugin.groovy.BaseGroovyPlugin
 import org.savantbuild.runtime.RuntimeConfiguration
 
+import java.nio.file.Files
 import java.nio.file.Path
 
 /**
@@ -49,10 +50,10 @@ class WebappPlugin extends BaseGroovyPlugin {
    * Cleans the web application by deleting all of the files in the WEB-INF/lib directory.
    */
   void clean() {
-    FileTools.prune(project.directory.resolve(settings.webDirectory.resolve("WEB-INF/classes")))
+    FileTools.prune(project.directory.resolve(settings.webDirectory.resolve("WEB-INF/lib")))
 
     if (settings.cleanClassesDirectory) {
-      FileTools.prune(project.directory.resolve(settings.webDirectory.resolve("WEB-INF/lib")))
+      FileTools.prune(project.directory.resolve(settings.webDirectory.resolve("WEB-INF/classes")))
     }
   }
 
@@ -73,8 +74,10 @@ class WebappPlugin extends BaseGroovyPlugin {
     }
 
     // Copy the project jars
-    filePlugin.copy(to: libDirectory) {
-      fileSet(dir: settings.jarOutputDirectory)
+    if (Files.isDirectory(project.directory.resolve(settings.jarOutputDirectory))) {
+      filePlugin.copy(to: libDirectory) {
+        fileSet(dir: settings.jarOutputDirectory)
+      }
     }
 
     if (settings.copyResources) {

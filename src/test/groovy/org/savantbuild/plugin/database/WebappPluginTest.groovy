@@ -57,7 +57,7 @@ class WebappPluginTest {
   static void beforeSuite() {
     projectDir = Paths.get("")
     if (!Files.isRegularFile(projectDir.resolve("LICENSE"))) {
-      projectDir = Paths.get("../database-plugin")
+      projectDir = Paths.get("../webapp-plugin")
     }
   }
 
@@ -87,11 +87,46 @@ class WebappPluginTest {
   @Test
   void all() {
     WebappPlugin plugin = new WebappPlugin(project, new RuntimeConfiguration(), output)
+    plugin.settings.cleanClassesDirectory = true
+    plugin.settings.copyResources = true
+
     plugin.clean()
     assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
+    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
 
     plugin.build()
     assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
     assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
+    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+
+    plugin.settings.cleanClassesDirectory = false
+    plugin.settings.copyResources = false
+    plugin.clean()
+    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+
+    // Just for clean up
+    plugin.settings.cleanClassesDirectory = true
+    plugin.clean()
+    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
+    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    plugin.settings.cleanClassesDirectory = false
+
+    Files.createDirectories(projectDir.resolve("web/WEB-INF/classes"))
+    Files.write(projectDir.resolve("web/WEB-INF/classes/some-resource.txt"), "Hello world".getBytes())
+    plugin.build()
+    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
+    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/some-resource.txt")))
+    assertFalse(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+
+    plugin.clean()
+    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/some-resource.txt")))
+    assertFalse(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
   }
 }
