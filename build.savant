@@ -33,7 +33,8 @@ project(group: "org.savantbuild.plugin", name: "webapp", version: "0.2.0", licen
       dependency(id: "org.savantbuild:savant-utils:${savantVersion}")
     }
     group(name: "compile") {
-      dependency(id: "org.savantbuild.plugin:file-plugin:${savantVersion}")
+      dependency(id: "org.savantbuild.plugin:dependency:${savantVersion}")
+      dependency(id: "org.savantbuild.plugin:file:${savantVersion}")
     }
     group(name: "test-compile", export: false) {
       dependency(id: "org.testng:testng:6.8.7")
