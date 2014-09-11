@@ -14,12 +14,7 @@
  * language governing permissions and limitations under the License.
  */
 package org.savantbuild.plugin.database
-
-import org.savantbuild.dep.domain.Artifact
-import org.savantbuild.dep.domain.Dependencies
-import org.savantbuild.dep.domain.DependencyGroup
-import org.savantbuild.dep.domain.License
-import org.savantbuild.dep.domain.Version
+import org.savantbuild.dep.domain.*
 import org.savantbuild.dep.workflow.FetchWorkflow
 import org.savantbuild.dep.workflow.PublishWorkflow
 import org.savantbuild.dep.workflow.Workflow
@@ -37,10 +32,11 @@ import org.testng.annotations.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarInputStream
 
-import static org.testng.Assert.assertFalse
-import static org.testng.Assert.assertTrue
-
+import static org.testng.Assert.*
 /**
  * Tests the webapp plugin.
  *
@@ -66,9 +62,9 @@ class WebappPluginTest {
     output = new SystemOutOutput(true)
     output.enableDebug()
 
-    project = new Project(projectDir, output)
+    project = new Project(projectDir.resolve("test-project"), output)
     project.group = "org.savantbuild.test"
-    project.name = "database-plugin-test"
+    project.name = "test-project"
     project.version = new Version("1.0")
     project.license = License.Apachev2
 
@@ -91,42 +87,81 @@ class WebappPluginTest {
     plugin.settings.copyResources = true
 
     plugin.clean()
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
 
     plugin.build()
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
+
+    plugin.war()
+    assertJarContains(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/logging.properties")
+    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
+    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/classes/logging.properties", project.directory.resolve("src/main/web-resources/logging.properties"))
 
     plugin.settings.cleanClassesDirectory = false
     plugin.settings.copyResources = false
     plugin.clean()
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
 
     // Just for clean up
     plugin.settings.cleanClassesDirectory = true
     plugin.clean()
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
     plugin.settings.cleanClassesDirectory = false
 
-    Files.createDirectories(projectDir.resolve("web/WEB-INF/classes"))
-    Files.write(projectDir.resolve("web/WEB-INF/classes/some-resource.txt"), "Hello world".getBytes())
+    Files.createDirectories(project.directory.resolve("web/WEB-INF/classes"))
+    Files.write(project.directory.resolve("web/WEB-INF/classes/some-resource.txt"), "Hello world".getBytes())
     plugin.build()
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/some-resource.txt")))
-    assertFalse(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/some-resource.txt")))
+    assertFalse(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
+
+    plugin.war()
+    assertJarContains(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/some-resource.txt")
+    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
+    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/classes/some-resource.txt", project.directory.resolve("web/WEB-INF/classes/some-resource.txt"))
 
     plugin.clean()
-    assertFalse(Files.isDirectory(projectDir.resolve("web/WEB-INF/lib")))
-    assertTrue(Files.isDirectory(projectDir.resolve("web/WEB-INF/classes")))
-    assertTrue(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/some-resource.txt")))
-    assertFalse(Files.isRegularFile(projectDir.resolve("web/WEB-INF/classes/logging.properties")))
+    assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))
+    assertTrue(Files.isDirectory(project.directory.resolve("web/WEB-INF/classes")))
+    assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/some-resource.txt")))
+    assertFalse(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
+  }
+
+  private static void assertJarContains(Path jarFile, String... entries) {
+    JarFile jf = new JarFile(jarFile.toFile())
+    entries.each({ entry -> assertNotNull(jf.getEntry(entry), "Jar [${jarFile}] is missing entry [${entry}]") })
+    jf.close()
+  }
+
+  private static void assertJarFileEquals(Path jarFile, String entry, Path original) throws IOException {
+    JarInputStream jis = new JarInputStream(Files.newInputStream(jarFile));
+    JarEntry jarEntry = jis.getNextJarEntry();
+    while (jarEntry != null && !jarEntry.getName().equals(entry)) {
+      jarEntry = jis.getNextJarEntry();
+    }
+
+    if (jarEntry == null) {
+      fail("Jar [" + jarFile + "] is missing entry [" + entry + "]");
+    }
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    byte[] buf = new byte[1024];
+    int length;
+    while ((length = jis.read(buf)) != -1) {
+      baos.write(buf, 0, length);
+    }
+
+    println Files.getLastModifiedTime(original)
+    assertEquals(Files.readAllBytes(original), baos.toByteArray());
+    assertEquals(jarEntry.getSize(), Files.size(original));
   }
 }

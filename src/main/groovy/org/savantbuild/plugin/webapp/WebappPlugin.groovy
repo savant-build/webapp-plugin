@@ -14,6 +14,9 @@
  * language governing permissions and limitations under the License.
  */
 package org.savantbuild.plugin.webapp
+
+import org.savantbuild.dep.domain.ArtifactID
+import org.savantbuild.dep.domain.ReifiedArtifact
 import org.savantbuild.domain.Project
 import org.savantbuild.io.FileTools
 import org.savantbuild.output.Output
@@ -85,6 +88,20 @@ class WebappPlugin extends BaseGroovyPlugin {
       filePlugin.copy(to: settings.webDirectory.resolve("WEB-INF/classes")) {
         fileSet(dir: settings.webResourceDirectory)
       }
+    }
+  }
+
+  /**
+   * Creates the web application archive by JARring the web directory. Here's an example of using the plugin.
+   * <p>
+   * <pre>
+   *   webapp.war()
+   * </pre>
+   */
+  void war() {
+    ReifiedArtifact artifact = new ReifiedArtifact(new ArtifactID(project.group, project.name, project.name, "war"), project.version, project.license)
+    filePlugin.jar(file: settings.jarOutputDirectory.resolve(artifact.getArtifactFile())) {
+      fileSet(dir: settings.webDirectory)
     }
   }
 }
