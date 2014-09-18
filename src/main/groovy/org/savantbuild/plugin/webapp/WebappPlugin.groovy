@@ -99,7 +99,7 @@ class WebappPlugin extends BaseGroovyPlugin {
    * </pre>
    */
   void war() {
-    ReifiedArtifact artifact = new ReifiedArtifact(new ArtifactID(project.group, project.name, project.name, "war"), project.version, project.license)
+    ReifiedArtifact artifact = new ReifiedArtifact(new ArtifactID(project.group, project.name, project.name, "war"), project.version, project.licenses)
     filePlugin.jar(file: settings.jarOutputDirectory.resolve(artifact.getArtifactFile())) {
       fileSet(dir: settings.webDirectory)
     }
