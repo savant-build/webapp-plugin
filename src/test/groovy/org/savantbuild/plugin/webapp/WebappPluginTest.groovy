@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.savantbuild.plugin.database
+package org.savantbuild.plugin.webapp
 import org.savantbuild.dep.domain.*
 import org.savantbuild.dep.workflow.FetchWorkflow
 import org.savantbuild.dep.workflow.PublishWorkflow
