@@ -79,7 +79,7 @@ class WebappPlugin extends BaseGroovyPlugin {
     // Copy the project jars
     if (Files.isDirectory(project.directory.resolve(settings.jarOutputDirectory))) {
       filePlugin.copy(to: libDirectory) {
-        fileSet(dir: settings.jarOutputDirectory)
+        fileSet(dir: settings.jarOutputDirectory, excludePatterns: [~/.+-test-.+/, ~/.+-src\.jar.+/])
       }
     }
 
