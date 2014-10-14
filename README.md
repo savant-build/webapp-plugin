@@ -1,6 +1,6 @@
 ## Webapp Plugin
 
-This plugin provides the ability to build a war build artifact from your project.
+This plugin allows you to build a web application for your project.
 
 You can learn about the features of the Webapp Plugin on the [wiki](https://github.com/inversoft/savant-webapp-plugin/wiki/Home).
 
