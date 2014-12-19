@@ -1,4 +1,4 @@
-## Webapp Plugin
+## Webapp Plugin ![semver 2.0.0 compliant](http://img.shields.io/badge/semver-2.0.0-brightgreen.svg?style=flat-square)
 
 This plugin allows you to build a web application for your project.
 
