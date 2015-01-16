@@ -97,9 +97,9 @@ class WebappPluginTest {
     assertTrue(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
 
     plugin.war()
-    assertJarContains(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/logging.properties")
-    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
-    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/classes/logging.properties", project.directory.resolve("src/main/web-resources/logging.properties"))
+    assertJarContains(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/logging.properties")
+    assertJarFileEquals(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
+    assertJarFileEquals(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/classes/logging.properties", project.directory.resolve("src/main/web-resources/logging.properties"))
 
     plugin.settings.cleanClassesDirectory = false
     plugin.settings.copyResources = false
@@ -125,9 +125,9 @@ class WebappPluginTest {
     assertFalse(Files.isRegularFile(project.directory.resolve("web/WEB-INF/classes/logging.properties")))
 
     plugin.war()
-    assertJarContains(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/some-resource.txt")
-    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
-    assertJarFileEquals(project.directory.resolve("build/jars/test-project-1.0.0.war"), "WEB-INF/classes/some-resource.txt", project.directory.resolve("web/WEB-INF/classes/some-resource.txt"))
+    assertJarContains(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", "WEB-INF/classes/some-resource.txt")
+    assertJarFileEquals(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/lib/testng-6.8.7.jar", project.directory.resolve("web/WEB-INF/lib/testng-6.8.7.jar"))
+    assertJarFileEquals(project.directory.resolve("build/wars/test-project-1.0.0.war"), "WEB-INF/classes/some-resource.txt", project.directory.resolve("web/WEB-INF/classes/some-resource.txt"))
 
     plugin.clean()
     assertFalse(Files.isDirectory(project.directory.resolve("web/WEB-INF/lib")))

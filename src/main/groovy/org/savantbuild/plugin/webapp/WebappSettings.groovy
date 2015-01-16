@@ -56,6 +56,11 @@ class WebappSettings {
   Path jarOutputDirectory = Paths.get("build/jars")
 
   /**
+   * The output directory where the project WAR files are placed. Defaults to {@code build/wars}
+   */
+  Path warOutputDirectory = Paths.get("build/wars")
+
+  /**
    * The web application directory inside the project. Defaults to {@code web}
    */
   Path webDirectory = Paths.get("web")
