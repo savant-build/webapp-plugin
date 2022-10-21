@@ -14,20 +14,6 @@
  * language governing permissions and limitations under the License.
  */
 package org.savantbuild.plugin.webapp
-import org.savantbuild.dep.domain.*
-import org.savantbuild.dep.workflow.FetchWorkflow
-import org.savantbuild.dep.workflow.PublishWorkflow
-import org.savantbuild.dep.workflow.Workflow
-import org.savantbuild.dep.workflow.process.CacheProcess
-import org.savantbuild.dep.workflow.process.URLProcess
-import org.savantbuild.domain.Project
-import org.savantbuild.output.Output
-import org.savantbuild.output.SystemOutOutput
-import org.savantbuild.plugin.webapp.WebappPlugin
-import org.savantbuild.runtime.RuntimeConfiguration
-import org.testng.annotations.BeforeMethod
-import org.testng.annotations.BeforeSuite
-import org.testng.annotations.Test
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -36,7 +22,30 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarInputStream
 
-import static org.testng.Assert.*
+import org.savantbuild.dep.domain.Artifact
+import org.savantbuild.dep.domain.Dependencies
+import org.savantbuild.dep.domain.DependencyGroup
+import org.savantbuild.dep.domain.License
+import org.savantbuild.dep.workflow.FetchWorkflow
+import org.savantbuild.dep.workflow.PublishWorkflow
+import org.savantbuild.dep.workflow.Workflow
+import org.savantbuild.dep.workflow.process.CacheProcess
+import org.savantbuild.dep.workflow.process.URLProcess
+import org.savantbuild.domain.Project
+import org.savantbuild.domain.Version
+import org.savantbuild.output.Output
+import org.savantbuild.output.SystemOutOutput
+import org.savantbuild.runtime.RuntimeConfiguration
+import org.testng.annotations.BeforeMethod
+import org.testng.annotations.BeforeSuite
+import org.testng.annotations.Test
+
+import static org.testng.Assert.assertEquals
+import static org.testng.Assert.assertFalse
+import static org.testng.Assert.assertNotNull
+import static org.testng.Assert.assertTrue
+import static org.testng.Assert.fail
+
 /**
  * Tests the webapp plugin.
  *
@@ -66,7 +75,7 @@ class WebappPluginTest {
     project.group = "org.savantbuild.test"
     project.name = "test-project"
     project.version = new Version("1.0")
-    project.licenses.put(License.ApacheV2_0, null)
+    project.licenses.add(License.parse("ApacheV2_0", null))
 
     project.dependencies = new Dependencies(new DependencyGroup("compile", false, new Artifact("org.testng:testng:6.8.7:jar", false)))
     project.workflow = new Workflow(
@@ -143,25 +152,25 @@ class WebappPluginTest {
   }
 
   private static void assertJarFileEquals(Path jarFile, String entry, Path original) throws IOException {
-    JarInputStream jis = new JarInputStream(Files.newInputStream(jarFile));
-    JarEntry jarEntry = jis.getNextJarEntry();
+    JarInputStream jis = new JarInputStream(Files.newInputStream(jarFile))
+    JarEntry jarEntry = jis.getNextJarEntry()
     while (jarEntry != null && !jarEntry.getName().equals(entry)) {
-      jarEntry = jis.getNextJarEntry();
+      jarEntry = jis.getNextJarEntry()
     }
 
     if (jarEntry == null) {
-      fail("Jar [" + jarFile + "] is missing entry [" + entry + "]");
+      fail("Jar [" + jarFile + "] is missing entry [" + entry + "]")
     }
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    byte[] buf = new byte[1024];
-    int length;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream()
+    byte[] buf = new byte[1024]
+    int length
     while ((length = jis.read(buf)) != -1) {
-      baos.write(buf, 0, length);
+      baos.write(buf, 0, length)
     }
 
     println Files.getLastModifiedTime(original)
-    assertEquals(Files.readAllBytes(original), baos.toByteArray());
-    assertEquals(jarEntry.getSize(), Files.size(original));
+    assertEquals(Files.readAllBytes(original), baos.toByteArray())
+    assertEquals(jarEntry.getSize(), Files.size(original))
   }
 }
