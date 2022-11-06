@@ -77,7 +77,7 @@ class WebappPluginTest {
     project.version = new Version("1.0")
     project.licenses.add(License.parse("ApacheV2_0", null))
 
-    project.dependencies = new Dependencies(new DependencyGroup("compile", false, new Artifact("org.testng:testng:6.8.7:jar", false)))
+    project.dependencies = new Dependencies(new DependencyGroup("compile", false, new Artifact("org.testng:testng:6.8.7:jar")))
     project.workflow = new Workflow(
         new FetchWorkflow(output,
             new CacheProcess(output, projectDir.resolve("build/cache").toString()),
