@@ -70,9 +70,11 @@ class WebappPlugin extends BaseGroovyPlugin {
    */
   void build() {
     Path libDirectory = settings.webDirectory.resolve("WEB-INF/lib")
-    dependencyPlugin.copy(to: libDirectory) {
-      settings.dependencies.each { dep ->
-        dependencies(dep)
+    if (settings.dependencies.size() > 0) {
+      dependencyPlugin.copy(to: libDirectory) {
+        settings.dependencies.each { dep ->
+          dependencies(dep)
+        }
       }
     }
 
