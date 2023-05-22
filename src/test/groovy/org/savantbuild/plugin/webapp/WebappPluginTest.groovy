@@ -78,13 +78,15 @@ class WebappPluginTest {
     project.licenses.add(License.parse("ApacheV2_0", null))
 
     project.dependencies = new Dependencies(new DependencyGroup("compile", false, new Artifact("org.testng:testng:6.8.7:jar")))
+
+    def cacheDir = projectDir.resolve("build/cache")
     project.workflow = new Workflow(
         new FetchWorkflow(output,
-            new CacheProcess(output, projectDir.resolve("build/cache").toString()),
+            new CacheProcess(output, cacheDir.toString(), cacheDir.toString()),
             new URLProcess(output, "https://repository.savantbuild.org", null, null)
         ),
         new PublishWorkflow(
-            new CacheProcess(output, projectDir.resolve("build/cache").toString())
+            new CacheProcess(output, cacheDir.toString(), cacheDir.toString())
         ),
         output
     )
